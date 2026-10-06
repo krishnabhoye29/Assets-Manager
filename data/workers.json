@@ -1,0 +1,7 @@
+[
+  {"id": "WRK-01", "name": "Worker 1", "email": "worker@demo.com", "department": "Streetlight Department", "zoneId": "Z01", "status": "Active"},
+  {"id": "WRK-02", "name": "Worker 2", "email": "worker2@demo.com", "department": "Roads Department", "zoneId": "Z02", "status": "Active"},
+  {"id": "WRK-03", "name": "Worker 3", "email": "worker3@demo.com", "department": "Sanitation Department", "zoneId": "Z01", "status": "Active"},
+  {"id": "WRK-04", "name": "Worker 4", "email": "worker4@demo.com", "department": "Water & Sewage Department", "zoneId": "Z02", "status": "Inactive"},
+  {"id": "WRK-05", "name": "Worker 5", "email": "worker5@demo.com", "department": "Public Facilities Department", "zoneId": "Z03", "status": "Active"}
+]

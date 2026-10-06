@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipal Asset & Complaint Management System</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Municipal Management System</h2>
+            <p style="color: #6b7280; margin-top: 10px; margin-bottom: 20px;">Select a demo role to continue</p>
+            
+            <div class="demo-accounts">
+                <button class="demo-btn" onclick="login('citizen')">
+                    <strong>Citizen Portal</strong><br>
+                    citizen@demo.com
+                </button>
+                <button class="demo-btn" onclick="login('worker')">
+                    <strong>Worker Portal</strong><br>
+                    worker@demo.com
+                </button>
+                <button class="demo-btn" onclick="login('admin')">
+                    <strong>Admin Portal</strong><br>
+                    admin@demo.com
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function login(role) {
+            localStorage.setItem('userRole', role);
+            if (role === 'citizen') window.location.href = 'citizen.html';
+            else if (role === 'worker') window.location.href = 'worker.html';
+            else if (role === 'admin') window.location.href = 'admin.html';
+        }
+    </script>
+</body>
+</html>

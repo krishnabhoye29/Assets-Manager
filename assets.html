@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management - Municipal Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="brand">Municipal Admin</div>
+            <ul>
+                <li><a href="admin.html">Dashboard & Map</a></li>
+                <li><a href="#">Complaints</a></li>
+                <li><a href="#">Workers</a></li>
+                <li><a href="#">Departments</a></li>
+                <li><a href="assets.html" class="active">Assets</a></li>
+                <li style="margin-top: 50px;"><a href="index.html" style="color: #ef4444;">Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="header">
+                <h2>Asset Management</h2>
+                <div class="user-info">Logged in as <strong>Admin</strong></div>
+            </header>
+            
+            <div class="content-body">
+                <div class="card">
+                    <div class="card-header">Municipal Assets Map</div>
+                    <div id="assetsMap" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Assets Inventory</div>
+                    <div class="table-responsive">
+                        <table id="assetsTable">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Type</th>
+                                    <th>Zone ID</th>
+                                    <th>Condition</th>
+                                    <th>Last Maintenance</th>
+                                    <th>Responsible Department</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/assets.js"></script>
+</body>
+</html>

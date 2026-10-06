@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard - Municipal Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="brand">Worker Portal</div>
+            <ul>
+                <li><a href="#" class="active">My Assignments</a></li>
+                <li style="margin-top: 50px;"><a href="index.html" style="color: #ef4444;">Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="header">
+                <h2>Worker Dashboard</h2>
+                <div class="user-info">Logged in as <strong id="workerName">Worker</strong> (<span id="workerDept">Department</span>) | Zone: <strong id="workerZone">Loading...</strong></div>
+            </header>
+            
+            <div class="content-body">
+                <div class="stat-cards" id="workerStats">
+                    <!-- Stats loaded via JS -->
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Assigned Complaints</div>
+                    <div class="table-responsive">
+                        <table id="assignmentsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Category</th>
+                                    <th>Zone</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Citizen Description</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/worker.js"></script>
+</body>
+</html>

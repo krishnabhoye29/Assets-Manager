@@ -1,0 +1,7 @@
+[
+  {"id": "AST-01", "type": "Streetlight", "zoneId": "Z01", "latitude": 19.076, "longitude": 72.871, "condition": "Good", "lastMaintenance": "2026-09-01", "department": "Streetlight Department"},
+  {"id": "AST-02", "type": "Public Toilet", "zoneId": "Z02", "latitude": 19.083, "longitude": 72.875, "condition": "Needs Inspection", "lastMaintenance": "2026-08-15", "department": "Public Facilities Department"},
+  {"id": "AST-03", "type": "Bus Stop", "zoneId": "Z03", "latitude": 19.075, "longitude": 72.885, "condition": "Critical", "lastMaintenance": "2025-12-10", "department": "Public Facilities Department"},
+  {"id": "AST-04", "type": "Garden", "zoneId": "Z04", "latitude": 19.086, "longitude": 72.888, "condition": "Good", "lastMaintenance": "2026-09-20", "department": "Public Facilities Department"},
+  {"id": "AST-05", "type": "Water Infrastructure", "zoneId": "Z01", "latitude": 19.073, "longitude": 72.875, "condition": "Needs Maintenance", "lastMaintenance": "2026-05-11", "department": "Water & Sewage Department"}
+]

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Portal - Municipal Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .citizen-layout {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+        .header {
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        #citizenMap {
+            height: 300px;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="citizen-layout">
+        <header class="header">
+            <h2>Citizen Portal</h2>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div>Welcome, <strong>Citizen</strong></div>
+                <button class="btn btn-primary" onclick="window.location.href='index.html'" style="background-color: var(--status-pending);">Logout</button>
+            </div>
+        </header>
+
+        <div class="stat-cards" id="citizenStats">
+            <!-- Stats loaded via JS -->
+        </div>
+
+        <div class="card">
+            <div class="card-header">Submit a New Complaint</div>
+            <form id="complaintForm" onsubmit="submitComplaint(event)">
+                <div class="form-group">
+                    <label>Select Location on Map</label>
+                    <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Click on the map to automatically detect your municipal zone.</p>
+                    <div id="citizenMap"></div>
+                    <button type="button" class="btn btn-primary" onclick="useMyLocation()" style="margin-top: 10px;">Use My Location</button>
+                </div>
+                
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>Latitude</label>
+                        <input type="text" id="lat" readonly required>
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>Longitude</label>
+                        <input type="text" id="lng" readonly required>
+                    </div>
+                    <div class="form-group" style="flex: 2; min-width: 200px;">
+                        <label>Detected Zone</label>
+                        <input type="text" id="detectedZone" readonly required placeholder="Click map to detect zone">
+                        <input type="hidden" id="detectedZoneId">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Complaint Category</label>
+                    <select id="category" required>
+                        <option value="">Select a category</option>
+                        <option>Streetlight</option>
+                        <option>Road</option>
+                        <option>Footpath</option>
+                        <option>Sewage</option>
+                        <option>Drainage</option>
+                        <option>Garbage</option>
+                        <option>Public Toilet</option>
+                        <option>Bus Stop</option>
+                        <option>Water Supply</option>
+                        <option>Garden</option>
+                        <option>Safety Issue</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="priority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Photo Evidence (Optional)</label>
+                    <input type="file" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 12px;">Submit Complaint</button>
+            </form>
+            
+            <div id="successMsg" style="display:none; margin-top: 20px; padding: 15px; background: #d1fae5; color: #065f46; border-radius: 8px;">
+                <strong>Complaint submitted successfully!</strong><br>
+                Complaint ID: <span id="newCmpId"></span><br>
+                Zone: <span id="newCmpZone"></span><br>
+                Status: Pending
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">My Complaint History</div>
+            <div class="table-responsive">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Complaint ID</th>
+                            <th>Category</th>
+                            <th>Zone</th>
+                            <th>Date</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/citizen.js"></script>
+</body>
+</html>

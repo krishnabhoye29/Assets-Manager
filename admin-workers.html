@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workers - Municipal Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="brand">Municipal Admin</div>
+            <ul>
+                <li><a href="admin.html">Dashboard & Map</a></li>
+                <li><a href="admin-complaints.html">Complaints</a></li>
+                <li><a href="admin-workers.html" class="active">Workers</a></li>
+                <li><a href="admin-departments.html">Departments</a></li>
+                <li><a href="assets.html">Assets</a></li>
+                <li style="margin-top: 50px;"><a href="index.html" style="color: #ef4444;">Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="header">
+                <h2>Worker Management</h2>
+                <div class="user-info">Logged in as <strong>Admin</strong></div>
+            </header>
+            
+            <div class="content-body">
+                <div class="card">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>All Workers</span>
+                        <button class="btn btn-primary" onclick="addWorker()">Add Worker</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="workersTable">
+                            <thead>
+                                <tr>
+                                    <th>Worker ID</th>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Zone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/data-service.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadWorkers();
+        });
+
+        async function loadWorkers() {
+            await window.dataService.loadInitialData();
+            const workers = await window.dataService.getWorkers();
+            let html = '';
+            workers.forEach(w => {
+                html += `
+                    <tr>
+                        <td><strong>${w.id}</strong></td>
+                        <td>${w.name}</td>
+                        <td>${w.department}</td>
+                        <td>${w.zoneId}</td>
+                        <td><span class="badge ${w.status === 'Active' ? 'resolved' : 'low'}">${w.status}</span></td>
+                        <td>
+                            <button class="btn btn-warning" style="padding:4px 8px; font-size:0.8rem;" onclick="editWorker('${w.id}')">Edit</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.querySelector('#workersTable tbody').innerHTML = html;
+        }
+
+        async function addWorker() {
+            const name = prompt("Enter Worker Name:");
+            if (!name) return;
+            const dept = prompt("Enter Department (e.g., Sanitation Department):");
+            const zone = prompt("Enter Zone ID (e.g., A, B, Z01):");
+            
+            if (name && dept && zone) {
+                await window.dataService.addWorker({ name, department: dept, zoneId: zone, status: 'Active' });
+                alert("Worker Added!");
+                loadWorkers();
+            }
+        }
+        
+        async function editWorker(id) {
+            const status = prompt("Enter new status (Active, Inactive):");
+            if (status && ['Active', 'Inactive'].includes(status)) {
+                await window.dataService.updateWorkerStatus(id, status);
+                alert("Worker updated!");
+                loadWorkers();
+            }
+        }
+    </script>
+</body>
+</html>

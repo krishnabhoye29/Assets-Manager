@@ -1,0 +1,10 @@
+[
+  {"id": "DEP-01", "name": "Streetlight Department", "head": "John Doe", "workerCount": 5},
+  {"id": "DEP-02", "name": "Roads Department", "head": "Jane Smith", "workerCount": 8},
+  {"id": "DEP-03", "name": "Footpath Department", "head": "Alan Wake", "workerCount": 4},
+  {"id": "DEP-04", "name": "Water & Sewage Department", "head": "Bruce Wayne", "workerCount": 12},
+  {"id": "DEP-05", "name": "Sanitation Department", "head": "Clark Kent", "workerCount": 15},
+  {"id": "DEP-06", "name": "Public Facilities Department", "head": "Diana Prince", "workerCount": 6},
+  {"id": "DEP-07", "name": "Safety Department", "head": "Peter Parker", "workerCount": 10},
+  {"id": "DEP-08", "name": "General Maintenance", "head": "Tony Stark", "workerCount": 7}
+]

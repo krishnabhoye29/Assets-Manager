@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints - Municipal Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="brand">Municipal Admin</div>
+            <ul>
+                <li><a href="admin.html">Dashboard & Map</a></li>
+                <li><a href="admin-complaints.html" class="active">Complaints</a></li>
+                <li><a href="admin-workers.html">Workers</a></li>
+                <li><a href="admin-departments.html">Departments</a></li>
+                <li><a href="assets.html">Assets</a></li>
+                <li style="margin-top: 50px;"><a href="index.html" style="color: #ef4444;">Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="header">
+                <h2>Complaint Management</h2>
+                <div class="user-info">Logged in as <strong>Admin</strong></div>
+            </header>
+            
+            <div class="content-body">
+                <div class="card">
+                    <div class="card-header">All Complaints</div>
+                    <div class="table-responsive">
+                        <table id="complaintsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Category</th>
+                                    <th>Zone</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Handled via simple script -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/data-service.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await window.dataService.loadInitialData();
+            let complaints = await window.dataService.getComplaints();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const zoneFilter = urlParams.get('zoneId');
+            if (zoneFilter) {
+                complaints = complaints.filter(c => c.zoneId === zoneFilter);
+            }
+            
+            let html = '';
+            complaints.forEach(c => {
+                html += `
+                    <tr>
+                        <td><strong>${c.id}</strong></td>
+                        <td>${c.category}</td>
+                        <td>${c.zoneName}</td>
+                        <td><span class="badge ${c.priority.toLowerCase()}">${c.priority}</span></td>
+                        <td><span class="badge ${c.status.toLowerCase().replace(' ', '-')}">${c.status}</span></td>
+                        <td>${c.createdAt}</td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.8rem;" onclick="editComplaint('${c.id}')">Edit</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.querySelector('#complaintsTable tbody').innerHTML = html;
+        });
+
+        async function editComplaint(id) {
+            const newStatus = prompt("Enter new status (Pending, Under Process, Resolved):");
+            if (newStatus && ["Pending", "Under Process", "Resolved"].includes(newStatus)) {
+                await window.dataService.updateComplaintStatus(id, newStatus);
+                alert("Complaint updated!");
+                location.reload();
+            } else if (newStatus) {
+                alert("Invalid status.");
+            }
+        }
+    </script>
+</body>
+</html>
