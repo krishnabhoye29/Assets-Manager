@@ -118,9 +118,66 @@ class DataService {
       this.isLoaded = true;
       console.log("Municipal DataService initialized with official BMC wards & dynamic persistence.");
     } catch (e) {
-      console.error("Failed to load initial data:", e);
-      alert("Failed to load municipal data. Please ensure you are running through a local web server (e.g. Live Server or python -m http.server) to avoid CORS issues.");
+      console.error("Failed to load initial data via fetch:", e);
+      
+      // Fallback: check if data is already cached in localStorage
+      const storedComplaints = this.getStorageItem('municipal_complaints', null);
+      const storedWorkers = this.getStorageItem('municipal_workers', null);
+      const storedDepartments = this.getStorageItem('municipal_departments', null);
+
+      if (storedComplaints && storedWorkers && storedComplaints.length > 0) {
+        this.complaints = storedComplaints;
+        this.workers = storedWorkers;
+        this.departments = storedDepartments || [];
+        this.recalculateDepartmentWorkerCounts();
+        this.isLoaded = true;
+        console.warn("Restored data from localStorage fallback.");
+        return;
+      }
+
+      this.showServerWarningBanner();
     }
+  }
+
+  showServerWarningBanner() {
+    if (typeof document === 'undefined' || document.getElementById('cors-server-warning')) return;
+    const banner = document.createElement('div');
+    banner.id = 'cors-server-warning';
+    banner.style.cssText = `
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      max-width: 480px;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #ef4444;
+      border-left: 6px solid #ef4444;
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      z-index: 99999;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    `;
+    banner.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 8px;">
+        <strong style="color: #f87171; font-size: 15px; display:flex; align-items:center; gap: 6px;">
+          ⚠️ Data Loading Blocked (CORS / file://)
+        </strong>
+        <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer; line-height:1; margin-left:12px;">&times;</button>
+      </div>
+      <p style="margin: 0 0 10px 0; color: #cbd5e1; font-size: 13px;">
+        Browsers block loading JSON data when opening HTML files directly from disk (<code>file:///</code>).
+      </p>
+      <div style="background: #1e293b; padding: 10px 12px; border-radius: 6px; font-size: 13px; color: #e2e8f0; border: 1px solid #334155;">
+        <span style="color:#38bdf8; font-weight:600;">How to fix:</span><br>
+        1. Double-click <strong>start-server.bat</strong> in this folder<br>
+        <span style="color:#94a3b8;">or run in terminal:</span> <code style="background:#0f172a; padding:2px 6px; border-radius:4px; color:#a5f3fc;">py -m http.server 8000</code><br>
+        2. Open <a href="http://localhost:8000" target="_blank" style="color:#60a5fa; text-decoration:underline; font-weight:600;">http://localhost:8000</a>
+      </div>
+    `;
+    document.body.appendChild(banner);
   }
 
   getStorageItem(key, fallback) {
