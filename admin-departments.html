@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Departments - Municipal Management</title>
+    <title>Departments - Municipal Admin</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="app-container">
         <nav class="sidebar">
-            <div class="brand">Municipal Admin</div>
+            <div class="brand">
+                <div style="font-size: 1.15rem; font-weight: 700;">Municipal Admin</div>
+                <div style="font-size: 0.75rem; color: #93c5fd; font-weight: normal; margin-top: 3px;">BMC Greater Mumbai</div>
+            </div>
             <ul>
                 <li><a href="admin.html">Dashboard & Map</a></li>
                 <li><a href="admin-complaints.html">Complaints</a></li>
@@ -22,21 +25,29 @@
         
         <main class="main-content">
             <header class="header">
-                <h2>Department Management</h2>
+                <div>
+                    <h2>Department Management</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Municipal service departments and operational coverage</p>
+                </div>
                 <div class="user-info">Logged in as <strong>Admin</strong></div>
             </header>
             
             <div class="content-body">
                 <div class="card">
-                    <div class="card-header">All Departments</div>
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>All Municipal Departments</span>
+                        <span id="deptCountBadge" class="badge medium">8 Departments</span>
+                    </div>
                     <div class="table-responsive">
                         <table id="deptsTable">
                             <thead>
                                 <tr>
                                     <th>Department ID</th>
-                                    <th>Name</th>
-                                    <th>Head</th>
-                                    <th>Worker Count</th>
+                                    <th>Department Name</th>
+                                    <th>Department Head</th>
+                                    <th>Assigned Workers</th>
+                                    <th>Active Complaints</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -54,14 +65,28 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await window.dataService.loadInitialData();
             const depts = await window.dataService.getDepartments();
+            const complaints = await window.dataService.getComplaints();
+            const workers = await window.dataService.getWorkers();
+
             let html = '';
             depts.forEach(d => {
+                const assignedWorkers = workers.filter(w => w.department === d.name && w.status === 'Active').length;
+                const activeComplaints = complaints.filter(c => c.department === d.name && c.status !== 'Resolved').length;
+
                 html += `
                     <tr>
-                        <td><strong>${d.id}</strong></td>
-                        <td>${d.name}</td>
+                        <td><strong style="color:#1e3a8a;">${d.id}</strong></td>
+                        <td><strong>${d.name}</strong></td>
                         <td>${d.head}</td>
-                        <td>${d.workerCount}</td>
+                        <td>
+                            <span class="badge ${assignedWorkers > 0 ? 'resolved' : 'low'}">${assignedWorkers} Active</span>
+                        </td>
+                        <td>
+                            <span class="badge ${activeComplaints > 0 ? 'under-process' : 'low'}">${activeComplaints} Active</span>
+                        </td>
+                        <td>
+                            <a href="admin-complaints.html?dept=${encodeURIComponent(d.name)}" class="btn btn-secondary" style="padding:4px 10px; font-size:0.8rem; text-decoration:none;">View Complaints</a>
+                        </td>
                     </tr>
                 `;
             });

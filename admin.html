@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Municipal Management</title>
+    <title>Admin Dashboard - Municipal Complaint Management System</title>
     <link rel="stylesheet" href="css/styles.css">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -13,13 +13,14 @@
             position: fixed;
             top: 0;
             right: 0;
-            width: 350px;
+            width: 380px;
             height: 100vh;
             background: white;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
             z-index: 1000;
-            padding: 20px;
+            padding: 24px;
             overflow-y: auto;
+            border-left: 1px solid #e5e7eb;
         }
         .zone-panel.active {
             display: block;
@@ -27,17 +28,24 @@
         .close-btn {
             float: right;
             cursor: pointer;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             line-height: 1;
+            color: #6b7280;
+        }
+        .close-btn:hover {
+            color: #111827;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
         <nav class="sidebar">
-            <div class="brand">Municipal Admin</div>
+            <div class="brand">
+                <div style="font-size: 1.15rem; font-weight: 700;">Municipal Admin</div>
+                <div style="font-size: 0.75rem; color: #93c5fd; font-weight: normal; margin-top: 3px;">BMC Greater Mumbai</div>
+            </div>
             <ul>
-                <li><a href="#" class="active">Dashboard & Map</a></li>
+                <li><a href="admin.html" class="active">Dashboard & Map</a></li>
                 <li><a href="admin-complaints.html">Complaints</a></li>
                 <li><a href="admin-workers.html">Workers</a></li>
                 <li><a href="admin-departments.html">Departments</a></li>
@@ -48,8 +56,14 @@
         
         <main class="main-content">
             <header class="header">
-                <h2>Overview Dashboard</h2>
-                <div class="user-info">Logged in as <strong>Admin</strong></div>
+                <div>
+                    <h2>Municipal Overview Dashboard</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Official Ward Management & Real-time Complaint Tracking</p>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button class="btn btn-secondary" onclick="seedSampleComplaint()" style="font-size: 0.8rem; padding: 6px 12px;">+ Test Sample Complaint</button>
+                    <div class="user-info">Logged in as <strong>Admin</strong></div>
+                </div>
             </header>
             
             <div class="content-body">
@@ -58,7 +72,10 @@
                 </div>
                 
                 <div class="card">
-                    <div class="card-header">Interactive Zone Map</div>
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Interactive Municipal Ward Map</span>
+                        <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">24 Official BMC Administrative Wards</span>
+                    </div>
                     
                     <div class="filter-bar">
                         <div class="filter-group">
@@ -75,7 +92,7 @@
                         <div class="filter-group">
                             <label>Complaint Status</label>
                             <select id="filterStatus">
-                                <option value="All">All</option>
+                                <option value="All">All Statuses</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Under Process">Under Process</option>
                                 <option value="Resolved">Resolved</option>
@@ -84,7 +101,7 @@
                         <div class="filter-group">
                             <label>Department</label>
                             <select id="filterDepartment">
-                                <option value="All">All</option>
+                                <option value="All">All Departments</option>
                                 <option value="Streetlight Department">Streetlight</option>
                                 <option value="Roads Department">Roads</option>
                                 <option value="Footpath Department">Footpath</option>
@@ -95,57 +112,76 @@
                                 <option value="General Maintenance">General Maintenance</option>
                             </select>
                         </div>
+                        <div class="filter-group">
+                            <label>Filter by Ward</label>
+                            <select id="filterWard">
+                                <option value="All">All 24 Wards</option>
+                                <!-- Populated dynamically with official ward names -->
+                            </select>
+                        </div>
                     </div>
                     
                     <div id="map"></div>
                 </div>
                 
                 <div class="card">
-                    <div class="card-header">Top Complaint Zones</div>
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Ward-Wise Complaint Statistics</span>
+                        <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Real-time Dynamic Density</span>
+                    </div>
                     <div id="topZonesList"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Zone Details Panel -->
+    <!-- Ward Details Panel -->
     <div id="zonePanel" class="zone-panel">
         <span class="close-btn" onclick="document.getElementById('zonePanel').classList.remove('active')">&times;</span>
-        <h2 id="zpName" style="margin-bottom: 10px;">Zone Name</h2>
-        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-            <input type="text" id="renameZoneInput" placeholder="New Zone Name" style="flex:1; padding: 5px;">
-            <button class="btn btn-secondary" onclick="renameCurrentZone()" style="padding: 5px 10px;">Rename</button>
+        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary-color); font-weight: 600; margin-bottom: 4px;">Ward Details</div>
+        <h3 id="zpName" style="margin-bottom: 6px; font-size: 1.15rem; color: #1e3a8a;">Ward Name</h3>
+        <p id="zpLocality" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Localities</p>
+        
+        <div style="margin-bottom: 20px; display: flex; gap: 8px;">
+            <input type="text" id="renameZoneInput" placeholder="Custom Ward Display Name" style="flex:1; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.85rem;">
+            <button class="btn btn-secondary" onclick="renameCurrentZone()" style="padding: 6px 12px; font-size: 0.85rem;">Rename</button>
         </div>
         
-        <div class="stat-cards" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
-            <div class="stat-card" style="padding: 10px;">
-                <h3 style="margin-bottom: 5px;">Total</h3>
-                <div class="value" id="zpTotal" style="font-size: 1.2rem;">0</div>
+        <div class="stat-cards" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <div class="stat-card" style="padding: 12px;">
+                <h3 style="margin-bottom: 4px;">Total</h3>
+                <div class="value" id="zpTotal" style="font-size: 1.3rem;">0</div>
             </div>
-            <div class="stat-card" style="padding: 10px;">
-                <h3 style="margin-bottom: 5px;">Pending</h3>
-                <div class="value" id="zpPending" style="font-size: 1.2rem; color: var(--status-pending);">0</div>
+            <div class="stat-card" style="padding: 12px;">
+                <h3 style="margin-bottom: 4px;">Pending</h3>
+                <div class="value" id="zpPending" style="font-size: 1.3rem; color: var(--status-pending);">0</div>
             </div>
-            <div class="stat-card" style="padding: 10px;">
-                <h3 style="margin-bottom: 5px;">Under Process</h3>
-                <div class="value" id="zpProcess" style="font-size: 1.2rem; color: var(--status-process);">0</div>
+            <div class="stat-card" style="padding: 12px;">
+                <h3 style="margin-bottom: 4px;">Under Process</h3>
+                <div class="value" id="zpProcess" style="font-size: 1.3rem; color: var(--status-process);">0</div>
             </div>
-            <div class="stat-card" style="padding: 10px;">
-                <h3 style="margin-bottom: 5px;">Resolved</h3>
-                <div class="value" id="zpResolved" style="font-size: 1.2rem; color: var(--status-resolved);">0</div>
+            <div class="stat-card" style="padding: 12px;">
+                <h3 style="margin-bottom: 4px;">Resolved</h3>
+                <div class="value" id="zpResolved" style="font-size: 1.3rem; color: var(--status-resolved);">0</div>
             </div>
+        </div>
+        
+        <div style="margin-bottom: 20px; background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 4px;">Resolution Rate</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: var(--secondary-color);"><span id="zpResRate">0</span>%</div>
         </div>
         
         <div style="margin-bottom: 20px;">
-            <h4>Resolution Rate: <span id="zpResRate">0</span>%</h4>
+            <h4 style="font-size: 0.95rem; margin-bottom: 10px;">Categories Breakdown</h4>
+            <div id="chartContainer" style="position: relative; height: 200px;">
+                <canvas id="zoneChart"></canvas>
+            </div>
+            <div id="noChartData" style="display: none; text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px 0;">
+                No complaints recorded in this ward yet.
+            </div>
         </div>
         
-        <div style="margin-bottom: 20px;">
-            <h4>Categories Breakdown</h4>
-            <canvas id="zoneChart" width="300" height="200"></canvas>
-        </div>
-        
-        <button class="btn btn-primary" style="width: 100%;" onclick="viewZoneComplaints()">View Zone Complaints</button>
+        <button class="btn btn-primary" style="width: 100%; padding: 10px;" onclick="viewZoneComplaints()">View Complaints for this Ward</button>
     </div>
 
     <!-- Scripts -->

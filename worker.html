@@ -3,42 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worker Dashboard - Municipal Management</title>
+    <title>Worker Dashboard - Municipal Complaint Management</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .worker-header-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 20px 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .worker-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        .meta-pill {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .worker-switcher {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1f2937;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
         <nav class="sidebar">
-            <div class="brand">Worker Portal</div>
+            <div class="brand">
+                <div style="font-size: 1.15rem; font-weight: 700;">Worker Portal</div>
+                <div style="font-size: 0.75rem; color: #93c5fd; font-weight: normal; margin-top: 3px;">Field Operations</div>
+            </div>
             <ul>
                 <li><a href="#" class="active">My Assignments</a></li>
+                <li><a href="citizen.html">Citizen Portal</a></li>
+                <li><a href="admin.html">Admin Portal</a></li>
                 <li style="margin-top: 50px;"><a href="index.html" style="color: #ef4444;">Logout</a></li>
             </ul>
         </nav>
         
         <main class="main-content">
             <header class="header">
-                <h2>Worker Dashboard</h2>
-                <div class="user-info">Logged in as <strong id="workerName">Worker</strong> (<span id="workerDept">Department</span>) | Zone: <strong id="workerZone">Loading...</strong></div>
+                <h2>Field Worker Portal</h2>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <label for="workerSelectDropdown" style="font-size:0.85rem; font-weight:600; color:#4b5563;">Switch Worker Profile:</label>
+                    <select id="workerSelectDropdown" class="worker-switcher" onchange="switchWorkerProfile(this.value)">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
             </header>
             
             <div class="content-body">
+                <!-- Worker Profile Banner -->
+                <div class="worker-header-card">
+                    <div>
+                        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #bfdbfe;">Assigned Field Officer</div>
+                        <h2 id="workerName" style="font-size: 1.5rem; margin-top: 2px;">Loading Worker...</h2>
+                        <div class="worker-meta">
+                            <span class="meta-pill">🏢 Dept: <strong id="workerDept">Department</strong></span>
+                            <span class="meta-pill">📍 Ward: <strong id="workerZone">Ward</strong></span>
+                            <span class="meta-pill">🆔 ID: <strong id="workerIdBadge">WRK-00</strong></span>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px 18px; border-radius: 8px; font-size: 0.85rem; max-width: 320px;">
+                        🔒 <strong>Role Assignment Rule:</strong> You strictly receive complaints matching your assigned department and ward.
+                    </div>
+                </div>
+
+                <!-- Assignment Stats -->
                 <div class="stat-cards" id="workerStats">
                     <!-- Stats loaded via JS -->
                 </div>
                 
                 <div class="card">
-                    <div class="card-header">Assigned Complaints</div>
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Assigned Ward Complaints</span>
+                        <span id="assignmentBadge" class="badge medium">0 Assigned</span>
+                    </div>
+
                     <div class="table-responsive">
                         <table id="assignmentsTable">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Complaint ID</th>
                                     <th>Category</th>
-                                    <th>Zone</th>
+                                    <th>Ward Area</th>
                                     <th>Priority</th>
                                     <th>Status</th>
                                     <th>Citizen Description</th>
+                                    <th>Citizen Contact</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -46,6 +118,18 @@
                                 <!-- Loaded via JS -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="workerEmptyState" style="display:none; text-align:center; padding: 40px 20px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">✅</div>
+                        <h3 style="font-size: 1.15rem; color: #374151; margin-bottom: 6px;">No Complaints Currently Assigned</h3>
+                        <p id="emptyStateMsg" style="font-size: 0.9rem; color: #6b7280; max-width: 520px; margin: 0 auto 16px auto;">
+                            You currently have no pending complaints in your assigned department and ward.
+                        </p>
+                        <a href="citizen.html" class="btn btn-primary" style="text-decoration:none; display:inline-block; font-size:0.85rem; padding:8px 16px;">
+                            Go to Citizen Portal to Submit Test Complaint &rarr;
+                        </a>
                     </div>
                 </div>
             </div>

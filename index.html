@@ -3,28 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Municipal Asset & Complaint Management System</title>
+    <title>Municipal Asset & Complaint Management System - Greater Mumbai</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .portal-desc {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+        .demo-btn:hover .portal-desc {
+            color: #374151;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-card">
-            <h2>Municipal Management System</h2>
-            <p style="color: #6b7280; margin-top: 10px; margin-bottom: 20px;">Select a demo role to continue</p>
+        <div class="login-card" style="max-width: 440px;">
+            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary-color); font-weight: 700; margin-bottom: 4px;">
+                BMC Greater Mumbai
+            </div>
+            <h2 style="font-size: 1.4rem; color: #1e3a8a;">Municipal Complaint & Asset Management</h2>
+            <p style="color: #6b7280; margin-top: 6px; margin-bottom: 20px; font-size: 0.9rem;">
+                Select a role portal to experience real-time grievance tracking:
+            </p>
             
             <div class="demo-accounts">
-                <button class="demo-btn" onclick="login('citizen')">
-                    <strong>Citizen Portal</strong><br>
-                    citizen@demo.com
+                <button class="demo-btn" onclick="login('citizen')" style="text-align: left; padding: 14px;">
+                    <strong style="color: #1e3a8a; font-size: 1rem;">Citizen Portal</strong>
+                    <div class="portal-desc">Submit dynamic complaints with official ward auto-detection</div>
+                    <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 4px;">citizen@demo.com</div>
                 </button>
-                <button class="demo-btn" onclick="login('worker')">
-                    <strong>Worker Portal</strong><br>
-                    worker@demo.com
+
+                <button class="demo-btn" onclick="login('worker')" style="text-align: left; padding: 14px;">
+                    <strong style="color: #059669; font-size: 1rem;">Field Worker Portal</strong>
+                    <div class="portal-desc">View assigned department & ward grievances & update resolution status</div>
+                    <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 4px;">worker@demo.com</div>
                 </button>
-                <button class="demo-btn" onclick="login('admin')">
-                    <strong>Admin Portal</strong><br>
-                    admin@demo.com
+
+                <button class="demo-btn" onclick="login('admin')" style="text-align: left; padding: 14px;">
+                    <strong style="color: #2563eb; font-size: 1rem;">Municipal Admin Portal</strong>
+                    <div class="portal-desc">24 Ward overview, worker assignments, & interactive complaint editor with mini-map</div>
+                    <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 4px;">admin@demo.com</div>
                 </button>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 0.75rem; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 14px;">
+                All dynamic complaints & worker assignments persist automatically across sessions.
             </div>
         </div>
     </div>
@@ -33,7 +57,12 @@
         function login(role) {
             localStorage.setItem('userRole', role);
             if (role === 'citizen') window.location.href = 'citizen.html';
-            else if (role === 'worker') window.location.href = 'worker.html';
+            else if (role === 'worker') {
+                if (!localStorage.getItem('currentWorkerId')) {
+                    localStorage.setItem('currentWorkerId', 'WRK-01');
+                }
+                window.location.href = 'worker.html';
+            }
             else if (role === 'admin') window.location.href = 'admin.html';
         }
     </script>

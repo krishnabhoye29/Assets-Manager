@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management - Municipal Management</title>
+    <title>Asset Management - Municipal Admin</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
     <div class="app-container">
         <nav class="sidebar">
-            <div class="brand">Municipal Admin</div>
+            <div class="brand">
+                <div style="font-size: 1.15rem; font-weight: 700;">Municipal Admin</div>
+                <div style="font-size: 0.75rem; color: #93c5fd; font-weight: normal; margin-top: 3px;">BMC Greater Mumbai</div>
+            </div>
             <ul>
                 <li><a href="admin.html">Dashboard & Map</a></li>
-                <li><a href="#">Complaints</a></li>
-                <li><a href="#">Workers</a></li>
-                <li><a href="#">Departments</a></li>
+                <li><a href="admin-complaints.html">Complaints</a></li>
+                <li><a href="admin-workers.html">Workers</a></li>
+                <li><a href="admin-departments.html">Departments</a></li>
                 <li><a href="assets.html" class="active">Assets</a></li>
                 <li style="margin-top: 50px;"><a href="index.html" style="color: #ef4444;">Logout</a></li>
             </ul>
@@ -23,25 +26,31 @@
         
         <main class="main-content">
             <header class="header">
-                <h2>Asset Management</h2>
+                <div>
+                    <h2>Municipal Asset Management</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Public infrastructure monitoring across Mumbai administrative wards</p>
+                </div>
                 <div class="user-info">Logged in as <strong>Admin</strong></div>
             </header>
             
             <div class="content-body">
                 <div class="card">
-                    <div class="card-header">Municipal Assets Map</div>
-                    <div id="assetsMap" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Municipal Infrastructure Map</span>
+                        <span style="font-size:0.8rem; font-weight:normal; color:var(--text-muted);">Mapped to Official Wards</span>
+                    </div>
+                    <div id="assetsMap" style="height: 420px; width: 100%; border-radius: 8px;"></div>
                 </div>
                 
                 <div class="card">
-                    <div class="card-header">Assets Inventory</div>
+                    <div class="card-header">Public Assets Inventory</div>
                     <div class="table-responsive">
                         <table id="assetsTable">
                             <thead>
                                 <tr>
                                     <th>Asset ID</th>
                                     <th>Type</th>
-                                    <th>Zone ID</th>
+                                    <th>Official Ward</th>
                                     <th>Condition</th>
                                     <th>Last Maintenance</th>
                                     <th>Responsible Department</th>

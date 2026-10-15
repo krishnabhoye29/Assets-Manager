@@ -1,7 +1,386 @@
 [
-  {"id": "WRK-01", "name": "Worker 1", "email": "worker@demo.com", "department": "Streetlight Department", "zoneId": "Z01", "status": "Active"},
-  {"id": "WRK-02", "name": "Worker 2", "email": "worker2@demo.com", "department": "Roads Department", "zoneId": "Z02", "status": "Active"},
-  {"id": "WRK-03", "name": "Worker 3", "email": "worker3@demo.com", "department": "Sanitation Department", "zoneId": "Z01", "status": "Active"},
-  {"id": "WRK-04", "name": "Worker 4", "email": "worker4@demo.com", "department": "Water & Sewage Department", "zoneId": "Z02", "status": "Inactive"},
-  {"id": "WRK-05", "name": "Worker 5", "email": "worker5@demo.com", "department": "Public Facilities Department", "zoneId": "Z03", "status": "Active"}
+  {
+    "id": "WRK-01",
+    "name": "Suresh Patil",
+    "email": "suresh.patil@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "A",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-02",
+    "name": "Ramesh Sharma",
+    "email": "ramesh.sharma@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "A",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-03",
+    "name": "Pooja More",
+    "email": "pooja.more@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "B",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-04",
+    "name": "Amit Kadam",
+    "email": "amit.kadam@demo.com",
+    "department": "Safety Department",
+    "zoneId": "B",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-05",
+    "name": "Kavita Rao",
+    "email": "kavita.rao@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "C",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-06",
+    "name": "Vikram Tiwari",
+    "email": "vikram.tiwari@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "C",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-07",
+    "name": "Sunil Kulkarni",
+    "email": "sunil.kulkarni@demo.com",
+    "department": "Safety Department",
+    "zoneId": "D",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-08",
+    "name": "Deepak Pawar",
+    "email": "deepak.pawar@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "D",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-09",
+    "name": "Priya Gaikwad",
+    "email": "priya.gaikwad@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "E",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-10",
+    "name": "Rajesh Joshi",
+    "email": "rajesh.joshi@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "E",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-11",
+    "name": "Anita Shah",
+    "email": "anita.shah@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "F/N",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-12",
+    "name": "Sachin Mishra",
+    "email": "sachin.mishra@demo.com",
+    "department": "Safety Department",
+    "zoneId": "F/N",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-13",
+    "name": "Sneha Patil",
+    "email": "sneha.patil@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "F/S",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-14",
+    "name": "Manoj Sharma",
+    "email": "manoj.sharma@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "F/S",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-15",
+    "name": "Neha More",
+    "email": "neha.more@demo.com",
+    "department": "Safety Department",
+    "zoneId": "G/N",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-16",
+    "name": "Santosh Kadam",
+    "email": "santosh.kadam@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "G/N",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-17",
+    "name": "Meena Rao",
+    "email": "meena.rao@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "G/S",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-18",
+    "name": "Ganesh Tiwari",
+    "email": "ganesh.tiwari@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "G/S",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-19",
+    "name": "Swati Kulkarni",
+    "email": "swati.kulkarni@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "H/E",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-20",
+    "name": "Nitin Pawar",
+    "email": "nitin.pawar@demo.com",
+    "department": "Safety Department",
+    "zoneId": "H/E",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-21",
+    "name": "Geeta Gaikwad",
+    "email": "geeta.gaikwad@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "H/W",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-22",
+    "name": "Anand Joshi",
+    "email": "anand.joshi@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "H/W",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-23",
+    "name": "Ritu Shah",
+    "email": "ritu.shah@demo.com",
+    "department": "Safety Department",
+    "zoneId": "K/E",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-24",
+    "name": "Mahesh Mishra",
+    "email": "mahesh.mishra@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "K/E",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-25",
+    "name": "Kiran Patil",
+    "email": "kiran.patil@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "K/W",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-26",
+    "name": "Ashok Sharma",
+    "email": "ashok.sharma@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "K/W",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-27",
+    "name": "Shalini More",
+    "email": "shalini.more@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "L",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-28",
+    "name": "Vinod Kadam",
+    "email": "vinod.kadam@demo.com",
+    "department": "Safety Department",
+    "zoneId": "L",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-29",
+    "name": "Jyoti Rao",
+    "email": "jyoti.rao@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "M/E",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-30",
+    "name": "Pradeep Tiwari",
+    "email": "pradeep.tiwari@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "M/E",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-31",
+    "name": "Asha Kulkarni",
+    "email": "asha.kulkarni@demo.com",
+    "department": "Safety Department",
+    "zoneId": "M/W",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-32",
+    "name": "Dinesh Pawar",
+    "email": "dinesh.pawar@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "M/W",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-33",
+    "name": "Bhavna Gaikwad",
+    "email": "bhavna.gaikwad@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "N",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-34",
+    "name": "Vijay Joshi",
+    "email": "vijay.joshi@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "N",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-35",
+    "name": "Archana Shah",
+    "email": "archana.shah@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "P/N",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-36",
+    "name": "Kishore Mishra",
+    "email": "kishore.mishra@demo.com",
+    "department": "Safety Department",
+    "zoneId": "P/N",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-37",
+    "name": "Rekha Patil",
+    "email": "rekha.patil@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "P/S",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-38",
+    "name": "Hemant Sharma",
+    "email": "hemant.sharma@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "P/S",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-39",
+    "name": "Manju More",
+    "email": "manju.more@demo.com",
+    "department": "Safety Department",
+    "zoneId": "R/C",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-40",
+    "name": "Ajay Kadam",
+    "email": "ajay.kadam@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "R/C",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-41",
+    "name": "Sarita Rao",
+    "email": "sarita.rao@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "R/N",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-42",
+    "name": "Sanjay Tiwari",
+    "email": "sanjay.tiwari@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "R/N",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-43",
+    "name": "Usha Kulkarni",
+    "email": "usha.kulkarni@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "R/S",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-44",
+    "name": "Chetan Pawar",
+    "email": "chetan.pawar@demo.com",
+    "department": "Safety Department",
+    "zoneId": "R/S",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-45",
+    "name": "Varsha Gaikwad",
+    "email": "varsha.gaikwad@demo.com",
+    "department": "Sanitation Department",
+    "zoneId": "S",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-46",
+    "name": "Pravin Joshi",
+    "email": "pravin.joshi@demo.com",
+    "department": "Streetlight Department",
+    "zoneId": "S",
+    "status": "Inactive"
+  },
+  {
+    "id": "WRK-47",
+    "name": "Lata Shah",
+    "email": "lata.shah@demo.com",
+    "department": "Safety Department",
+    "zoneId": "T",
+    "status": "Active"
+  },
+  {
+    "id": "WRK-48",
+    "name": "Nilesh Mishra",
+    "email": "nilesh.mishra@demo.com",
+    "department": "Footpath Department",
+    "zoneId": "T",
+    "status": "Inactive"
+  }
 ]

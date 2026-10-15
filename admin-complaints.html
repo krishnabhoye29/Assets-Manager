@@ -3,13 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complaints - Municipal Management</title>
+    <title>Complaints Management - Municipal System</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 950px;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: modalFadeIn 0.25s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        /* Status Progress Stages Selector */
+        .stage-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stage-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .stage-card:hover {
+            border-color: #93c5fd;
+            background: #f8fafc;
+        }
+        .stage-card.selected.pending {
+            border-color: var(--status-pending);
+            background: #fef2f2;
+        }
+        .stage-card.selected.process {
+            border-color: var(--status-process);
+            background: #fffbeb;
+        }
+        .stage-card.selected.resolved {
+            border-color: var(--status-resolved);
+            background: #f0fdf4;
+        }
+        .stage-card input[type="radio"] {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        .stage-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stage-sub {
+            font-size: 0.78rem;
+            color: #6b7280;
+        }
+
+        /* 2-Column Editor Layout */
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 820px) {
+            .editor-grid {
+                grid-template-columns: 1fr;
+            }
+            .stage-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+        #modalMap {
+            height: 250px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            margin-top: 8px;
+            z-index: 1;
+        }
+        .editor-section-card {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #4b5563;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
         <nav class="sidebar">
-            <div class="brand">Municipal Admin</div>
+            <div class="brand">
+                <div style="font-size: 1.15rem; font-weight: 700;">Municipal Admin</div>
+                <div style="font-size: 0.75rem; color: #93c5fd; font-weight: normal; margin-top: 3px;">BMC Greater Mumbai</div>
+            </div>
             <ul>
                 <li><a href="admin.html">Dashboard & Map</a></li>
                 <li><a href="admin-complaints.html" class="active">Complaints</a></li>
@@ -22,20 +181,71 @@
         
         <main class="main-content">
             <header class="header">
-                <h2>Complaint Management</h2>
-                <div class="user-info">Logged in as <strong>Admin</strong></div>
+                <div>
+                    <h2>Complaint Management</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Review, assign, and update dynamic municipal complaints</p>
+                </div>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <a href="citizen.html" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px; text-decoration:none;">+ Submit as Citizen</a>
+                    <div class="user-info">Logged in as <strong>Admin</strong></div>
+                </div>
             </header>
             
             <div class="content-body">
                 <div class="card">
-                    <div class="card-header">All Complaints</div>
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>All Dynamic Complaints</span>
+                        <span id="complaintCountBadge" class="badge medium">0 Total Complaints</span>
+                    </div>
+
+                    <!-- Filter & Search Bar -->
+                    <div class="filter-bar" style="margin-bottom: 20px;">
+                        <div class="filter-group" style="flex: 1.5; min-width: 200px;">
+                            <label>Search Complaints</label>
+                            <input type="text" id="searchInput" placeholder="Search by ID, keyword, citizen..." style="padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                        </div>
+                        <div class="filter-group" style="flex: 1; min-width: 160px;">
+                            <label>Ward</label>
+                            <select id="filterWard">
+                                <option value="All">All 24 Wards</option>
+                                <!-- Populated via JS -->
+                            </select>
+                        </div>
+                        <div class="filter-group" style="flex: 1; min-width: 140px;">
+                            <label>Status</label>
+                            <select id="filterStatus">
+                                <option value="All">All Statuses</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Under Process">Under Process</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="flex: 1; min-width: 160px;">
+                            <label>Department</label>
+                            <select id="filterDepartment">
+                                <option value="All">All Departments</option>
+                                <option value="Streetlight Department">Streetlight</option>
+                                <option value="Roads Department">Roads</option>
+                                <option value="Footpath Department">Footpath</option>
+                                <option value="Water & Sewage Department">Water & Sewage</option>
+                                <option value="Sanitation Department">Sanitation</option>
+                                <option value="Public Facilities Department">Public Facilities</option>
+                                <option value="Safety Department">Safety</option>
+                                <option value="General Maintenance">General Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table Container -->
                     <div class="table-responsive">
                         <table id="complaintsTable">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Category</th>
-                                    <th>Zone</th>
+                                    <th>Department</th>
+                                    <th>Ward</th>
+                                    <th>Citizen</th>
                                     <th>Priority</th>
                                     <th>Status</th>
                                     <th>Date</th>
@@ -43,54 +253,626 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Handled via simple script -->
+                                <!-- Handled via script -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div id="paginationBar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:0.85rem;">
+                        <div id="paginationInfo" style="color:#6b7280;">Showing 0 to 0 of 0 complaints</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label for="pageSizeSelect" style="color:#6b7280;">Page size:</label>
+                            <select id="pageSizeSelect" onchange="changePageSize(this.value)" style="padding:4px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;">
+                                <option value="15">15</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="all">All</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary" id="prevPageBtn" onclick="changePage(-1)" style="padding:4px 10px; font-size:0.8rem;">&larr; Prev</button>
+                            <span id="pageIndicator" style="font-weight:600; color:#374151;">Page 1</span>
+                            <button type="button" class="btn btn-secondary" id="nextPageBtn" onclick="changePage(1)" style="padding:4px 10px; font-size:0.8rem;">Next &rarr;</button>
+                        </div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="emptyState" style="display:none; text-align:center; padding: 48px 20px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 12px;">📋</div>
+                        <h3 style="font-size: 1.15rem; color: #374151; margin-bottom: 6px;">No Dynamic Complaints Found</h3>
+                        <p style="font-size: 0.9rem; color: #6b7280; max-width: 480px; margin: 0 auto 18px auto;">
+                            Demo complaints have been removed. Any complaint submitted dynamically from the Citizen Portal will automatically appear here and persist across sessions.
+                        </p>
+                        <a href="citizen.html" class="btn btn-primary" style="text-decoration:none; display:inline-block; padding:8px 16px;">
+                            Open Citizen Portal to Submit Complaint &rarr;
+                        </a>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-    
+
+    <!-- Improved Complaint Details / Editor Modal -->
+    <div id="complaintModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <h3 style="font-size: 1.2rem; color: #1e3a8a; font-weight: 700;">Complaint Editor</h3>
+                        <span id="modalComplaintId" class="badge medium" style="font-size:0.85rem; padding:4px 10px;">CMP-2026-0000</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:3px;">
+                        Submitted on <strong id="modalCreatedAt">YYYY-MM-DD</strong>
+                    </div>
+                </div>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+
+            <div class="modal-body">
+                <!-- Selectable Progress Stages / Checkboxes -->
+                <div style="font-size:0.85rem; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">
+                    Current Status & Progress Stage:
+                </div>
+                <div class="stage-selector">
+                    <div class="stage-card" id="stagePending" onclick="selectStatus('Pending')">
+                        <input type="radio" name="complaintStatus" id="radioPending" value="Pending">
+                        <div class="stage-title" style="color: var(--status-pending);">
+                            <span>🔴</span> Pending
+                        </div>
+                        <div class="stage-sub">Awaiting review or dispatch</div>
+                    </div>
+                    
+                    <div class="stage-card" id="stageProcess" onclick="selectStatus('Under Process')">
+                        <input type="radio" name="complaintStatus" id="radioProcess" value="Under Process">
+                        <div class="stage-title" style="color: var(--status-process);">
+                            <span>🟡</span> Under Process
+                        </div>
+                        <div class="stage-sub">Assigned & work in progress</div>
+                    </div>
+                    
+                    <div class="stage-card" id="stageResolved" onclick="selectStatus('Resolved')">
+                        <input type="radio" name="complaintStatus" id="radioResolved" value="Resolved">
+                        <div class="stage-title" style="color: var(--status-resolved);">
+                            <span>🟢</span> Resolved
+                        </div>
+                        <div class="stage-sub">Work completed & verified</div>
+                    </div>
+                </div>
+
+                <!-- 2-Column Editor Grid -->
+                <div class="editor-grid">
+                    <!-- Left Column: Form Fields -->
+                    <div>
+                        <!-- Citizen Details Section -->
+                        <div class="editor-section-card">
+                            <div class="section-title">👤 Citizen Information</div>
+                            <div style="display:flex; gap:12px; margin-bottom:10px;">
+                                <div class="form-group" style="flex:1; margin-bottom:0;">
+                                    <label>Citizen ID</label>
+                                    <input type="text" id="editCitizenId" readonly style="background:#f3f4f6; cursor:not-allowed;">
+                                </div>
+                                <div class="form-group" style="flex:1.5; margin-bottom:0;">
+                                    <label>Citizen Name</label>
+                                    <input type="text" id="editCitizenName">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Contact Phone / Email</label>
+                                <input type="text" id="editCitizenContact">
+                            </div>
+                        </div>
+
+                        <!-- Classification & Assignment Section -->
+                        <div class="editor-section-card">
+                            <div class="section-title">📑 Classification & Assignment</div>
+                            <div style="display:flex; gap:12px; margin-bottom:10px;">
+                                <div class="form-group" style="flex:1; margin-bottom:0;">
+                                    <label>Category</label>
+                                    <select id="editCategory" onchange="onCategoryChange()">
+                                        <option>Streetlight</option>
+                                        <option>Road</option>
+                                        <option>Footpath</option>
+                                        <option>Sewage</option>
+                                        <option>Drainage</option>
+                                        <option>Garbage</option>
+                                        <option>Public Toilet</option>
+                                        <option>Bus Stop</option>
+                                        <option>Water Supply</option>
+                                        <option>Garden</option>
+                                        <option>Safety Issue</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex:1; margin-bottom:0;">
+                                    <label>Priority</label>
+                                    <select id="editPriority">
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Department</label>
+                                <select id="editDepartment" onchange="updateWorkerOptions()">
+                                    <option>Streetlight Department</option>
+                                    <option>Roads Department</option>
+                                    <option>Footpath Department</option>
+                                    <option>Water & Sewage Department</option>
+                                    <option>Sanitation Department</option>
+                                    <option>Public Facilities Department</option>
+                                    <option>Safety Department</option>
+                                    <option>General Maintenance</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Administrative Ward</label>
+                                <select id="editWard" onchange="onWardChange()">
+                                    <!-- Populated via JS with official wards -->
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Assigned Worker</label>
+                                <select id="editWorker">
+                                    <option value="">Unassigned</option>
+                                    <!-- Populated via JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Citizen Description -->
+                        <div class="form-group">
+                            <label>Citizen Description</label>
+                            <textarea id="editDescription" rows="3" style="font-size:0.9rem; line-height:1.4;"></textarea>
+                        </div>
+
+                        <!-- Admin Notes -->
+                        <div class="form-group">
+                            <label>Admin Resolution Notes / Remarks</label>
+                            <textarea id="editAdminNotes" rows="2" placeholder="Add resolution notes, worker instructions, or verification remarks..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Location & Interactive Map Pinpoint -->
+                    <div>
+                        <div class="editor-section-card">
+                            <div class="section-title">📍 Exact Location Pinpoint</div>
+                            <p style="font-size: 0.8rem; color: #6b7280; margin-bottom: 10px;">
+                                Pinpoint marker shows the exact complaint location. Click or drag marker on map to adjust coordinates.
+                            </p>
+                            
+                            <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                                <div class="form-group" style="flex:1; margin-bottom:0;">
+                                    <label style="font-size:0.75rem;">Latitude</label>
+                                    <input type="text" id="editLat" style="font-size:0.85rem;" onchange="updatePinFromInputs()">
+                                </div>
+                                <div class="form-group" style="flex:1; margin-bottom:0;">
+                                    <label style="font-size:0.75rem;">Longitude</label>
+                                    <input type="text" id="editLng" style="font-size:0.85rem;" onchange="updatePinFromInputs()">
+                                </div>
+                            </div>
+                            
+                            <div style="font-size:0.8rem; color:#4b5563; margin-bottom:8px;">
+                                <strong>Detected Official Ward:</strong> <span id="detectedWardLabel" style="color:#1e3a8a; font-weight:600;">Loading...</span>
+                            </div>
+
+                            <div id="modalMap"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" onclick="deleteCurrentComplaint()" style="background:#ef4444; font-size:0.85rem; padding:8px 14px;">Delete Complaint</button>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()" style="background:#e5e7eb; color:#374151; font-size:0.85rem; padding:8px 16px;">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveComplaintChanges()" style="font-size:0.85rem; padding:8px 20px;">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
     <script src="js/data-service.js"></script>
     <script>
+        let allComplaints = [];
+        let allZones = null;
+        let allWorkers = [];
+        let currentEditingId = null;
+        let modalMap = null;
+        let modalMarker = null;
+
         document.addEventListener('DOMContentLoaded', async () => {
             await window.dataService.loadInitialData();
-            let complaints = await window.dataService.getComplaints();
-            
+            allZones = await window.dataService.getZones();
+            allWorkers = await window.dataService.getWorkers();
+
+            // Populate ward filters
+            populateWardDropdowns();
+
+            // Setup filter listeners
+            document.getElementById('searchInput').addEventListener('input', renderComplaintsTable);
+            document.getElementById('filterWard').addEventListener('change', renderComplaintsTable);
+            document.getElementById('filterStatus').addEventListener('change', renderComplaintsTable);
+            document.getElementById('filterDepartment').addEventListener('change', renderComplaintsTable);
+
+            // Handle URL params
             const urlParams = new URLSearchParams(window.location.search);
             const zoneFilter = urlParams.get('zoneId');
             if (zoneFilter) {
-                complaints = complaints.filter(c => c.zoneId === zoneFilter);
+                document.getElementById('filterWard').value = zoneFilter;
             }
-            
+
+            await loadComplaints();
+
+            const editId = urlParams.get('editId');
+            if (editId) {
+                openEditModal(editId);
+            }
+
+            // Cross-tab synchronization
+            window.addEventListener('storage', async (e) => {
+                if (e.key === 'municipal_complaints' || e.key === 'municipal_workers') {
+                    await loadComplaints();
+                }
+            });
+        });
+
+        async function loadComplaints() {
+            allComplaints = await window.dataService.getComplaints();
+            renderComplaintsTable();
+        }
+
+        function populateWardDropdowns() {
+            const filterSelect = document.getElementById('filterWard');
+            const editSelect = document.getElementById('editWard');
+            const wards = window.dataService.getOfficialWards();
+
+            wards.forEach(w => {
+                const opt1 = document.createElement('option');
+                opt1.value = w.id;
+                opt1.textContent = `${w.name} - ${w.locality.split(',')[0]}`;
+                filterSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = w.id;
+                opt2.textContent = w.fullName;
+                editSelect.appendChild(opt2);
+            });
+        }
+
+        let currentPage = 1;
+        let pageSize = 25;
+
+        function changePageSize(val) {
+            pageSize = val === 'all' ? allComplaints.length : parseInt(val, 10);
+            currentPage = 1;
+            renderComplaintsTable();
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderComplaintsTable();
+        }
+
+        function renderComplaintsTable() {
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            const wardFilter = document.getElementById('filterWard').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const deptFilter = document.getElementById('filterDepartment').value;
+
+            let filtered = allComplaints.filter(c => {
+                if (wardFilter !== 'All' && c.zoneId !== wardFilter) return false;
+                if (statusFilter !== 'All' && c.status !== statusFilter) return false;
+                if (deptFilter !== 'All' && c.department !== deptFilter) return false;
+                if (search) {
+                    const matchId = (c.id || '').toLowerCase().includes(search);
+                    const matchDesc = (c.description || '').toLowerCase().includes(search);
+                    const matchCit = (c.citizenId || '').toLowerCase().includes(search) || (c.citizenName || '').toLowerCase().includes(search);
+                    const matchWard = (c.zoneName || '').toLowerCase().includes(search);
+                    if (!matchId && !matchDesc && !matchCit && !matchWard) return false;
+                }
+                return true;
+            });
+
+            const tbody = document.querySelector('#complaintsTable tbody');
+            const emptyState = document.getElementById('emptyState');
+            const paginationBar = document.getElementById('paginationBar');
+            const countBadge = document.getElementById('complaintCountBadge');
+
+            countBadge.innerText = `${filtered.length} ${filtered.length === 1 ? 'Complaint' : 'Complaints'}`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                if (paginationBar) paginationBar.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            if (paginationBar) paginationBar.style.display = 'flex';
+
+            // Pagination calculation
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / pageSize) || 1;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+            const pageItems = filtered.slice(startIndex, endIndex);
+
+            // Update pagination UI
+            const paginationInfo = document.getElementById('paginationInfo');
+            const pageIndicator = document.getElementById('pageIndicator');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+
+            if (paginationInfo) paginationInfo.innerText = `Showing ${startIndex + 1} to ${endIndex} of ${totalItems} complaints`;
+            if (pageIndicator) pageIndicator.innerText = `Page ${currentPage} of ${totalPages}`;
+            if (prevBtn) prevBtn.disabled = (currentPage <= 1);
+            if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
+
             let html = '';
-            complaints.forEach(c => {
+            pageItems.forEach(c => {
+                const ward = window.dataService.getWard(c.zoneId);
+                const wardLabel = ward.fullName || c.zoneName || `Ward ${c.zoneId}`;
+                const citizenLabel = c.citizenName ? `${c.citizenName} (${c.citizenId || 'CIT'})` : (c.citizenId || 'CIT');
+
                 html += `
                     <tr>
-                        <td><strong>${c.id}</strong></td>
+                        <td><strong style="color:#1e3a8a;">${c.id}</strong></td>
                         <td>${c.category}</td>
-                        <td>${c.zoneName}</td>
+                        <td style="font-size:0.85rem; color:#4b5563;">${c.department}</td>
+                        <td style="font-size:0.85rem;" title="${wardLabel}"><strong>${ward.name}</strong> <span style="color:#6b7280; font-size:0.75rem;">(${ward.locality.split(',')[0]})</span></td>
+                        <td style="font-size:0.85rem; color:#374151;">${citizenLabel}</td>
                         <td><span class="badge ${c.priority.toLowerCase()}">${c.priority}</span></td>
                         <td><span class="badge ${c.status.toLowerCase().replace(' ', '-')}">${c.status}</span></td>
-                        <td>${c.createdAt}</td>
+                        <td style="font-size:0.85rem; color:#6b7280;">${c.createdAt}</td>
                         <td>
-                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.8rem;" onclick="editComplaint('${c.id}')">Edit</button>
+                            <button class="btn btn-secondary" style="padding:5px 12px; font-size:0.8rem;" onclick="openEditModal('${c.id}')">View / Edit</button>
                         </td>
                     </tr>
                 `;
             });
-            document.querySelector('#complaintsTable tbody').innerHTML = html;
-        });
+            tbody.innerHTML = html;
+        }
 
-        async function editComplaint(id) {
-            const newStatus = prompt("Enter new status (Pending, Under Process, Resolved):");
-            if (newStatus && ["Pending", "Under Process", "Resolved"].includes(newStatus)) {
-                await window.dataService.updateComplaintStatus(id, newStatus);
-                alert("Complaint updated!");
-                location.reload();
-            } else if (newStatus) {
-                alert("Invalid status.");
+        // Improved Modal Logic
+        function openEditModal(complaintId) {
+            const complaint = allComplaints.find(c => c.id === complaintId);
+            if (!complaint) return;
+
+            currentEditingId = complaintId;
+
+            document.getElementById('modalComplaintId').innerText = complaint.id;
+            document.getElementById('modalCreatedAt').innerText = complaint.createdAt || 'N/A';
+            document.getElementById('editCitizenId').value = complaint.citizenId || 'CIT001';
+            document.getElementById('editCitizenName').value = complaint.citizenName || 'Citizen User';
+            document.getElementById('editCitizenContact').value = complaint.citizenContact || '';
+            document.getElementById('editCategory').value = complaint.category;
+            document.getElementById('editDepartment').value = complaint.department;
+            document.getElementById('editWard').value = complaint.zoneId;
+            document.getElementById('editPriority').value = complaint.priority;
+            document.getElementById('editDescription').value = complaint.description;
+            document.getElementById('editAdminNotes').value = complaint.adminNotes || '';
+            document.getElementById('editLat').value = complaint.latitude;
+            document.getElementById('editLng').value = complaint.longitude;
+
+            selectStatus(complaint.status);
+            updateWorkerOptions(complaint.assignedWorker);
+
+            const wardInfo = window.dataService.getWard(complaint.zoneId);
+            document.getElementById('detectedWardLabel').innerText = wardInfo.fullName;
+
+            document.getElementById('complaintModal').classList.add('active');
+
+            // Initialize or update Leaflet modal map
+            setTimeout(() => {
+                initModalMap(complaint.latitude, complaint.longitude);
+            }, 150);
+        }
+
+        function closeModal() {
+            document.getElementById('complaintModal').classList.remove('active');
+            currentEditingId = null;
+        }
+
+        function selectStatus(status) {
+            document.getElementById('radioPending').checked = (status === 'Pending');
+            document.getElementById('radioProcess').checked = (status === 'Under Process');
+            document.getElementById('radioResolved').checked = (status === 'Resolved');
+
+            document.getElementById('stagePending').className = 'stage-card' + (status === 'Pending' ? ' selected pending' : '');
+            document.getElementById('stageProcess').className = 'stage-card' + (status === 'Under Process' ? ' selected process' : '');
+            document.getElementById('stageResolved').className = 'stage-card' + (status === 'Resolved' ? ' selected resolved' : '');
+        }
+
+        function getSelectedStatus() {
+            if (document.getElementById('radioResolved').checked) return 'Resolved';
+            if (document.getElementById('radioProcess').checked) return 'Under Process';
+            return 'Pending';
+        }
+
+        function onCategoryChange() {
+            const cat = document.getElementById('editCategory').value;
+            const dept = window.dataService.getDepartmentForCategory(cat);
+            document.getElementById('editDepartment').value = dept;
+            updateWorkerOptions();
+        }
+
+        function onWardChange() {
+            const wardId = document.getElementById('editWard').value;
+            const ward = window.dataService.getWard(wardId);
+            document.getElementById('detectedWardLabel').innerText = ward.fullName;
+            updateWorkerOptions();
+        }
+
+        function updateWorkerOptions(selectedWorkerId = null) {
+            const select = document.getElementById('editWorker');
+            const dept = document.getElementById('editDepartment').value;
+            const wardId = document.getElementById('editWard').value;
+
+            select.innerHTML = '<option value="">-- Select Worker --</option>';
+
+            // Primary: workers matching department and ward
+            const exactMatches = allWorkers.filter(w => w.department === dept && w.zoneId === wardId);
+            if (exactMatches.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = `Assigned to ${dept} in this Ward`;
+                exactMatches.forEach(w => {
+                    const opt = document.createElement('option');
+                    opt.value = w.id;
+                    opt.textContent = `${w.name} (${w.id}) - ${w.status}`;
+                    optGroup.appendChild(opt);
+                });
+                select.appendChild(optGroup);
+            }
+
+            // Other workers in this department
+            const otherDeptWorkers = allWorkers.filter(w => w.department === dept && w.zoneId !== wardId);
+            if (otherDeptWorkers.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = `Other ${dept} Workers`;
+                otherDeptWorkers.forEach(w => {
+                    const opt = document.createElement('option');
+                    opt.value = w.id;
+                    opt.textContent = `${w.name} (${w.id} - Ward ${w.zoneId})`;
+                    optGroup.appendChild(opt);
+                });
+                select.appendChild(optGroup);
+            }
+
+            // All remaining active workers
+            const remaining = allWorkers.filter(w => w.department !== dept);
+            if (remaining.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = `Other Departments`;
+                remaining.forEach(w => {
+                    const opt = document.createElement('option');
+                    opt.value = w.id;
+                    opt.textContent = `${w.name} (${w.department})`;
+                    optGroup.appendChild(opt);
+                });
+                select.appendChild(optGroup);
+            }
+
+            if (selectedWorkerId) {
+                select.value = selectedWorkerId;
+            }
+        }
+
+        function initModalMap(lat, lng) {
+            const initialLat = (!isNaN(lat) && lat !== 0) ? lat : 19.080;
+            const initialLng = (!isNaN(lng) && lng !== 0) ? lng : 72.879;
+
+            if (!modalMap) {
+                modalMap = L.map('modalMap').setView([initialLat, initialLng], 14);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(modalMap);
+
+                // Add zones boundary layer
+                if (allZones) {
+                    L.geoJSON(allZones, {
+                        style: {
+                            color: '#3b82f6',
+                            weight: 1.5,
+                            fillOpacity: 0.08
+                        }
+                    }).addTo(modalMap);
+                }
+
+                modalMap.on('click', (e) => {
+                    setModalCoordinates(e.latlng.lat, e.latlng.lng);
+                });
+            } else {
+                modalMap.setView([initialLat, initialLng], 14);
+                modalMap.invalidateSize();
+            }
+
+            if (modalMarker) {
+                modalMap.removeLayer(modalMarker);
+            }
+
+            modalMarker = L.marker([initialLat, initialLng], { draggable: true }).addTo(modalMap);
+            modalMarker.bindPopup("Complaint Location (Drag to adjust)").openPopup();
+
+            modalMarker.on('dragend', (e) => {
+                const pos = e.target.getLatLng();
+                setModalCoordinates(pos.lat, pos.lng);
+            });
+        }
+
+        function setModalCoordinates(lat, lng) {
+            document.getElementById('editLat').value = lat.toFixed(6);
+            document.getElementById('editLng').value = lng.toFixed(6);
+
+            if (modalMarker) {
+                modalMarker.setLatLng([lat, lng]);
+            }
+
+            // Auto-detect ward
+            const detected = window.dataService.detectZone(lat, lng);
+            if (detected) {
+                document.getElementById('detectedWardLabel').innerText = detected.name;
+                document.getElementById('editWard').value = detected.id;
+                updateWorkerOptions();
+            } else {
+                document.getElementById('detectedWardLabel').innerText = "Outside Municipal Boundary";
+            }
+        }
+
+        function updatePinFromInputs() {
+            const lat = parseFloat(document.getElementById('editLat').value);
+            const lng = parseFloat(document.getElementById('editLng').value);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                setModalCoordinates(lat, lng);
+                if (modalMap) modalMap.panTo([lat, lng]);
+            }
+        }
+
+        async function saveComplaintChanges() {
+            if (!currentEditingId) return;
+
+            const wardId = document.getElementById('editWard').value;
+            const updated = {
+                status: getSelectedStatus(),
+                category: document.getElementById('editCategory').value,
+                department: document.getElementById('editDepartment').value,
+                priority: document.getElementById('editPriority').value,
+                zoneId: wardId,
+                citizenName: document.getElementById('editCitizenName').value.trim(),
+                citizenContact: document.getElementById('editCitizenContact').value.trim(),
+                description: document.getElementById('editDescription').value.trim(),
+                adminNotes: document.getElementById('editAdminNotes').value.trim(),
+                assignedWorker: document.getElementById('editWorker').value || null,
+                latitude: parseFloat(document.getElementById('editLat').value),
+                longitude: parseFloat(document.getElementById('editLng').value)
+            };
+
+            await window.dataService.updateComplaint(currentEditingId, updated);
+            alert(`Complaint ${currentEditingId} successfully updated!`);
+            closeModal();
+            await loadComplaints();
+        }
+
+        async function deleteCurrentComplaint() {
+            if (!currentEditingId) return;
+            if (confirm(`Are you sure you want to delete complaint ${currentEditingId}? This action cannot be undone.`)) {
+                const idx = allComplaints.findIndex(c => c.id === currentEditingId);
+                if (idx !== -1) {
+                    allComplaints.splice(idx, 1);
+                    window.dataService.saveComplaints();
+                    closeModal();
+                    await loadComplaints();
+                }
             }
         }
     </script>

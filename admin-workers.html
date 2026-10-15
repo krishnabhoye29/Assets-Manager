@@ -3,13 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workers - Municipal Management</title>
+    <title>Worker Assignment & Management - Municipal Admin</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 580px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+        .modal-body {
+            padding: 22px;
+        }
+        .modal-footer {
+            padding: 16px 22px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f8fafc;
+        }
+        .assignment-preview {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 14px;
+            font-size: 0.85rem;
+            color: #1e40af;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
         <nav class="sidebar">
-            <div class="brand">Municipal Admin</div>
+            <div class="brand">
+                <div style="font-size: 1.15rem; font-weight: 700;">Municipal Admin</div>
+                <div style="font-size: 0.75rem; color: #93c5fd; font-weight: normal; margin-top: 3px;">BMC Greater Mumbai</div>
+            </div>
             <ul>
                 <li><a href="admin.html">Dashboard & Map</a></li>
                 <li><a href="admin-complaints.html">Complaints</a></li>
@@ -22,24 +85,63 @@
         
         <main class="main-content">
             <header class="header">
-                <h2>Worker Management</h2>
-                <div class="user-info">Logged in as <strong>Admin</strong></div>
+                <div>
+                    <h2>Worker Assignment & Management</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Assign official wards and departments to field workers</p>
+                </div>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <a href="worker.html" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px; text-decoration:none;">View Worker Portal &rarr;</a>
+                    <div class="user-info">Logged in as <strong>Admin</strong></div>
+                </div>
             </header>
             
             <div class="content-body">
                 <div class="card">
                     <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>All Workers</span>
-                        <button class="btn btn-primary" onclick="addWorker()">Add Worker</button>
+                        <div>
+                            <span>Municipal Field Workers</span>
+                            <span id="workerCountBadge" class="badge medium" style="margin-left: 10px;">0 Workers</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openAddWorkerModal()" style="font-size:0.85rem; padding:8px 16px;">+ Add New Worker</button>
                     </div>
+
+                    <!-- Filters -->
+                    <div class="filter-bar" style="margin-bottom: 20px;">
+                        <div class="filter-group" style="flex:1.5; min-width: 200px;">
+                            <label>Search Workers</label>
+                            <input type="text" id="workerSearch" placeholder="Search by name, ID, or email..." style="padding:6px 10px; border:1px solid #d1d5db; border-radius:4px;">
+                        </div>
+                        <div class="filter-group" style="flex:1; min-width: 160px;">
+                            <label>Department</label>
+                            <select id="workerDeptFilter">
+                                <option value="All">All Departments</option>
+                                <option value="Streetlight Department">Streetlight</option>
+                                <option value="Roads Department">Roads</option>
+                                <option value="Footpath Department">Footpath</option>
+                                <option value="Water & Sewage Department">Water & Sewage</option>
+                                <option value="Sanitation Department">Sanitation</option>
+                                <option value="Public Facilities Department">Public Facilities</option>
+                                <option value="Safety Department">Safety</option>
+                                <option value="General Maintenance">General Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="flex:1; min-width: 160px;">
+                            <label>Assigned Ward</label>
+                            <select id="workerWardFilter">
+                                <option value="All">All 24 Wards</option>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table id="workersTable">
                             <thead>
                                 <tr>
                                     <th>Worker ID</th>
-                                    <th>Name</th>
-                                    <th>Department</th>
-                                    <th>Zone</th>
+                                    <th>Name & Email</th>
+                                    <th>Assigned Department</th>
+                                    <th>Assigned Ward</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -53,54 +155,337 @@
             </div>
         </main>
     </div>
-    
+
+    <!-- Edit Worker Assignment Modal -->
+    <div id="editWorkerModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <h3 style="font-size: 1.15rem; color:#1e3a8a; font-weight:700;">Edit Worker Assignment</h3>
+                    <span id="modalWorkerIdBadge" class="badge medium" style="margin-top:4px;">WRK-00</span>
+                </div>
+                <span class="close-btn" onclick="closeEditWorkerModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editWorkerForm" onsubmit="saveWorkerEdit(event)">
+                    <div class="form-group">
+                        <label>Worker Full Name</label>
+                        <input type="text" id="editWorkerName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="editWorkerEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assigned Department</label>
+                        <select id="editWorkerDept" required onchange="updateAssignmentPreview()">
+                            <option>Streetlight Department</option>
+                            <option>Roads Department</option>
+                            <option>Footpath Department</option>
+                            <option>Water & Sewage Department</option>
+                            <option>Sanitation Department</option>
+                            <option>Public Facilities Department</option>
+                            <option>Safety Department</option>
+                            <option>General Maintenance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assigned Administrative Ward</label>
+                        <select id="editWorkerWard" required onchange="updateAssignmentPreview()">
+                            <!-- Populated via JS with 24 official BMC wards -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Active Status</label>
+                        <select id="editWorkerStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div id="assignmentPreviewText" class="assignment-preview">
+                        ℹ️ This worker will strictly see and manage complaints for the selected department and ward.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditWorkerModal()" style="background:#e5e7eb; color:#374151;">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitWorkerEdit()">Save Assignment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Worker Modal -->
+    <div id="addWorkerModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <h3 style="font-size: 1.15rem; color:#1e3a8a; font-weight:700;">Add New Municipal Worker</h3>
+                    <p style="font-size:0.8rem; color:#6b7280; margin-top:2px;">Create worker profile and assign to ward and department</p>
+                </div>
+                <span class="close-btn" onclick="closeAddWorkerModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addWorkerForm" onsubmit="submitAddWorker(event)">
+                    <div class="form-group">
+                        <label>Worker Full Name</label>
+                        <input type="text" id="addWorkerName" placeholder="e.g., Rajesh Sharma" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="addWorkerEmail" placeholder="e.g., rajesh.sharma@demo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="addWorkerDept" required>
+                            <option>Streetlight Department</option>
+                            <option>Roads Department</option>
+                            <option>Footpath Department</option>
+                            <option>Water & Sewage Department</option>
+                            <option>Sanitation Department</option>
+                            <option>Public Facilities Department</option>
+                            <option>Safety Department</option>
+                            <option>General Maintenance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assigned Ward</label>
+                        <select id="addWorkerWard" required>
+                            <!-- Populated via JS -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Initial Status</label>
+                        <select id="addWorkerStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddWorkerModal()" style="background:#e5e7eb; color:#374151;">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddWorker(event)">Create & Assign Worker</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="js/data-service.js"></script>
     <script>
+        let workers = [];
+        let editingWorkerId = null;
+
         document.addEventListener('DOMContentLoaded', async () => {
+            await window.dataService.loadInitialData();
+            populateWardDropdowns();
+
+            document.getElementById('workerSearch').addEventListener('input', renderWorkersTable);
+            document.getElementById('workerDeptFilter').addEventListener('change', renderWorkersTable);
+            document.getElementById('workerWardFilter').addEventListener('change', renderWorkersTable);
+
             await loadWorkers();
+
+            window.addEventListener('storage', async (e) => {
+                if (e.key === 'municipal_workers') {
+                    await loadWorkers();
+                }
+            });
         });
 
         async function loadWorkers() {
-            await window.dataService.loadInitialData();
-            const workers = await window.dataService.getWorkers();
+            workers = await window.dataService.getWorkers();
+            renderWorkersTable();
+        }
+
+        function populateWardDropdowns() {
+            const wards = window.dataService.getOfficialWards();
+            const filterSelect = document.getElementById('workerWardFilter');
+            const editSelect = document.getElementById('editWorkerWard');
+            const addSelect = document.getElementById('addWorkerWard');
+
+            wards.forEach(w => {
+                const opt1 = document.createElement('option');
+                opt1.value = w.id;
+                opt1.textContent = `${w.name} - ${w.locality.split(',')[0]}`;
+                filterSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = w.id;
+                opt2.textContent = w.fullName;
+                editSelect.appendChild(opt2);
+
+                const opt3 = document.createElement('option');
+                opt3.value = w.id;
+                opt3.textContent = w.fullName;
+                addSelect.appendChild(opt3);
+            });
+        }
+
+        function renderWorkersTable() {
+            const search = document.getElementById('workerSearch').value.trim().toLowerCase();
+            const deptFilter = document.getElementById('workerDeptFilter').value;
+            const wardFilter = document.getElementById('workerWardFilter').value;
+
+            const filtered = workers.filter(w => {
+                if (deptFilter !== 'All' && w.department !== deptFilter) return false;
+                if (wardFilter !== 'All' && w.zoneId !== wardFilter) return false;
+                if (search) {
+                    const matchId = (w.id || '').toLowerCase().includes(search);
+                    const matchName = (w.name || '').toLowerCase().includes(search);
+                    const matchEmail = (w.email || '').toLowerCase().includes(search);
+                    if (!matchId && !matchName && !matchEmail) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('workerCountBadge').innerText = `${filtered.length} ${filtered.length === 1 ? 'Worker' : 'Workers'}`;
+
+            const tbody = document.querySelector('#workersTable tbody');
             let html = '';
-            workers.forEach(w => {
+            filtered.forEach(w => {
+                const ward = window.dataService.getWard(w.zoneId);
+                const wardDisplay = ward.fullName || `Ward ${w.zoneId}`;
+
                 html += `
                     <tr>
-                        <td><strong>${w.id}</strong></td>
-                        <td>${w.name}</td>
-                        <td>${w.department}</td>
-                        <td>${w.zoneId}</td>
-                        <td><span class="badge ${w.status === 'Active' ? 'resolved' : 'low'}">${w.status}</span></td>
+                        <td><strong style="color:#1e3a8a;">${w.id}</strong></td>
                         <td>
-                            <button class="btn btn-warning" style="padding:4px 8px; font-size:0.8rem;" onclick="editWorker('${w.id}')">Edit</button>
+                            <div style="font-weight:600; color:#111827;">${w.name}</div>
+                            <div style="font-size:0.8rem; color:#6b7280;">${w.email || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <span style="font-weight:500; color:#1f2937;">${w.department}</span>
+                        </td>
+                        <td>
+                            <div style="font-weight:600; color:#1e3a8a;">${ward.name}</div>
+                            <div style="font-size:0.75rem; color:#6b7280;">${ward.locality ? ward.locality.split(',')[0] : ''}</div>
+                        </td>
+                        <td>
+                            <span class="badge ${w.status === 'Active' ? 'resolved' : 'low'}">${w.status}</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-warning" style="padding:5px 12px; font-size:0.8rem;" onclick="openEditWorkerModal('${w.id}')">Edit Assignment</button>
                         </td>
                     </tr>
                 `;
             });
-            document.querySelector('#workersTable tbody').innerHTML = html;
+
+            if (filtered.length === 0) {
+                html = `
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding:32px; color:#6b7280;">
+                            No workers found matching the selected filters.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            tbody.innerHTML = html;
         }
 
-        async function addWorker() {
-            const name = prompt("Enter Worker Name:");
-            if (!name) return;
-            const dept = prompt("Enter Department (e.g., Sanitation Department):");
-            const zone = prompt("Enter Zone ID (e.g., A, B, Z01):");
-            
-            if (name && dept && zone) {
-                await window.dataService.addWorker({ name, department: dept, zoneId: zone, status: 'Active' });
-                alert("Worker Added!");
-                loadWorkers();
-            }
+        // Edit Worker Assignment Modal Logic
+        function openEditWorkerModal(workerId) {
+            const worker = workers.find(w => w.id === workerId);
+            if (!worker) return;
+
+            editingWorkerId = workerId;
+            document.getElementById('modalWorkerIdBadge').innerText = worker.id;
+            document.getElementById('editWorkerName').value = worker.name;
+            document.getElementById('editWorkerEmail').value = worker.email || '';
+            document.getElementById('editWorkerDept').value = worker.department;
+            document.getElementById('editWorkerWard').value = worker.zoneId;
+            document.getElementById('editWorkerStatus').value = worker.status || 'Active';
+
+            updateAssignmentPreview();
+            document.getElementById('editWorkerModal').classList.add('active');
         }
-        
-        async function editWorker(id) {
-            const status = prompt("Enter new status (Active, Inactive):");
-            if (status && ['Active', 'Inactive'].includes(status)) {
-                await window.dataService.updateWorkerStatus(id, status);
-                alert("Worker updated!");
-                loadWorkers();
+
+        function closeEditWorkerModal() {
+            document.getElementById('editWorkerModal').classList.remove('active');
+            editingWorkerId = null;
+        }
+
+        function updateAssignmentPreview() {
+            const dept = document.getElementById('editWorkerDept').value;
+            const wardId = document.getElementById('editWorkerWard').value;
+            const ward = window.dataService.getWard(wardId);
+
+            document.getElementById('assignmentPreviewText').innerHTML = `
+                ℹ️ <strong>Assignment Rule:</strong> This worker will strictly handle <strong>${dept}</strong> complaints within <strong>${ward.fullName}</strong>.
+            `;
+        }
+
+        async function submitWorkerEdit() {
+            if (!editingWorkerId) return;
+
+            const name = document.getElementById('editWorkerName').value.trim();
+            const email = document.getElementById('editWorkerEmail').value.trim();
+            const dept = document.getElementById('editWorkerDept').value;
+            const wardId = document.getElementById('editWorkerWard').value;
+            const status = document.getElementById('editWorkerStatus').value;
+
+            if (!name) {
+                alert("Worker name cannot be empty.");
+                return;
             }
+
+            await window.dataService.updateWorker(editingWorkerId, {
+                name,
+                email,
+                department: dept,
+                zoneId: wardId,
+                status
+            });
+
+            alert(`Worker ${editingWorkerId} assignment updated successfully!`);
+            closeEditWorkerModal();
+            await loadWorkers();
+        }
+
+        // Add Worker Modal Logic
+        function openAddWorkerModal() {
+            document.getElementById('addWorkerForm').reset();
+            document.getElementById('addWorkerModal').classList.add('active');
+        }
+
+        function closeAddWorkerModal() {
+            document.getElementById('addWorkerModal').classList.remove('active');
+        }
+
+        async function submitAddWorker(e) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            const name = document.getElementById('addWorkerName').value.trim();
+            const email = document.getElementById('addWorkerEmail').value.trim();
+            const dept = document.getElementById('addWorkerDept').value;
+            const wardId = document.getElementById('addWorkerWard').value;
+            const status = document.getElementById('addWorkerStatus').value;
+
+            if (!name) {
+                alert("Please provide the worker's name.");
+                return;
+            }
+
+            const newWorker = await window.dataService.addWorker({
+                name,
+                email,
+                department: dept,
+                zoneId: wardId,
+                status
+            });
+
+            alert(`New worker ${newWorker.id} (${newWorker.name}) added and assigned to ${dept} in Ward ${wardId}!`);
+            closeAddWorkerModal();
+            await loadWorkers();
         }
     </script>
 </body>
